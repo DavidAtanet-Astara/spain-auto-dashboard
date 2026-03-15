@@ -1,15 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spain Auto — Search Intelligence</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spain Auto — Search Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0c0c0a; --bg2:#141410; --surface:#1c1c17; --surface2:#242420;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#e8e4d8; --text2:#8a8780; --text3:#5a5855;
+  --accent:#e05a2b; --green:#3ecf8e; --red:#f06060;
+  --r:8px; --rl:12px;
+}
+html,body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; font-size:14px; line-height:1.5; min-height:100vh; -webkit-font-smoothing:antialiased; }
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--surface2); border-radius:2px; }
+header { background:var(--bg2); border-bottom:0.5px solid var(--border); padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:52px; position:sticky; top:0; z-index:100; }
+.logo { font-family:'Syne',sans-serif; font-size:14px; font-weight:600; display:flex; align-items:center; gap:10px; }
+.dot { width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); flex-shrink:0; }
+.accent { color:var(--accent); }
+.meta { font-size:11px; color:var(--text3); }
+main { max-width:1280px; margin:0 auto; padding:28px 24px; }
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
+.kpi { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--r); padding:18px 20px; animation:fadeUp 0.4s ease both; }
+.kpi-l { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:10px; font-weight:500; }
+.kpi-v { font-family:'Syne',sans-serif; font-size:22px; font-weight:600; color:var(--text); line-height:1; }
+.kpi-s { font-size:11px; color:var(--text2); margin-top:6px; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.card { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--rl); padding:20px 22px; }
+.sec { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text3); margin-bottom:16px; font-weight:500; }
+table { width:100%; border-collapse:collapse; font-size:12px; }
+th { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--text3); padding:0 0 10px; border-bottom:0.5px solid var(--border); text-align:left; font-weight:500; }
+th:last-child, td:last-child { text-align:right; }
+td { padding:8px 0; border-bottom:0.5px solid var(--border); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+.rn { color:var(--text3); font-size:10px; width:20px; display:inline-block; }
+.bn { font-family:'Syne',sans-serif; font-weight:500; }
+.mono { font-family:'DM Mono',monospace; color:var(--text2); }
+.badge { display:inline-block; font-size:10px; font-weight:500; padding:2px 7px; border-radius:4px; font-family:'DM Mono',monospace; }
+.badge-up { background:rgba(62,207,142,.12); color:var(--green); }
+.badge-dn { background:rgba(240,96,96,.12); color:var(--red); }
+.pills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+.pill { border:0.5px solid var(--border2); border-radius:20px; padding:3px 12px; font-size:11px; font-family:'DM Mono',monospace; cursor:pointer; color:var(--text3); background:transparent; transition:all .15s; }
+.chart-wrap { position:relative; height:300px; }
+.growth-wrap { position:relative; height:300px; }
+.legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:14px; font-size:11px; color:var(--text2); }
+.li { display:flex; align-items:center; gap:6px; }
+.ld { width:10px; height:2px; border-radius:1px; }
+.loading { display:flex; align-items:center; gap:12px; color:var(--text3); padding:80px 0; justify-content:center; font-size:13px; }
+.spinner { width:16px; height:16px; border:1.5px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0; }
+.err { color:var(--red); background:rgba(240,96,96,.08); border:0.5px solid rgba(240,96,96,.2); border-radius:var(--r); padding:16px 20px; font-size:13px; }
+.footer { font-size:11px; color:var(--text3); text-align:center; padding:16px 0 4px; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (max-width:768px) {
+  .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .two-col { grid-template-columns:1fr; }
+  header { padding:0 16px; }
+  main { padding:16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="dot"></div>
+    Spain Auto <span class="accent">&nbsp;/ Search Intelligence</span>
+  </div>
+  <span class="meta">jun 2023 – may 2025</span>
+</header>
+
+<main id="app">
+  <div class="loading"><div class="spinner"></div> Cargando datos…</div>
+</main>
+
+<script>
+// ── Edge Function endpoint (sin CORS issues) ─────────────────────────────────
+const ENDPOINT = 'https://gdyfllsrlvbcojbeupqz.supabase.co/functions/v1/auto-data'
+
+const MONTHS = ['2023-06','2023-07','2023-08','2023-09','2023-10','2023-11','2023-12','2024-01','2024-02','2024-03','2024-04','2024-05','2024-06','2024-07','2024-08','2024-09','2024-10','2024-11','2024-12','2025-01','2025-02','2025-03','2025-04','2025-05']
+const COLORS = ['#e05a2b','#3ecf8e','#5b9cf6','#f5c518','#c084fc','#f472b6','#34d399','#fb923c','#60a5fa','#a78bfa']
+
+const fmtK = v => { if (!v && v!==0) return '–'; if (v>=1e6) return (v/1e6).toFixed(1)+'M'; if (v>=1e3) return Math.round(v/1e3)+'K'; return v }
+const fmtP = v => (v>=0?'+':'')+Math.round(v*100)+'%'
+
+let allMetrics=[], allMonthly=[], selected=['Toyota','Tesla','Volkswagen','BYD','Kia']
+let trendChart=null, growthChart=null
+
+async function init() {
+  try {
+    const res = await fetch(ENDPOINT)
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const { metrics, monthly } = await res.json()
+    allMetrics = metrics.filter(x => x.brands)
+    allMonthly = monthly.filter(x => x.brands)
+    render()
+  } catch(e) {
+    document.getElementById('app').innerHTML = `<div class="err">⚠ ${e.message || 'Error al cargar datos'}</div>`
+  }
+}
+
+function render() {
+  const top = allMetrics[0]
+  const fastest = [...allMetrics].sort((a,b)=>(b.growth_12m_pct||0)-(a.growth_12m_pct||0))[0]
+  const totalYTD = allMetrics.reduce((s,m)=>s+(m.apr_ytd_searches||0), 0)
+  const growing = allMetrics.filter(m=>m.growth_12m_pct>0).length
+  const topBrands = allMetrics.slice(0,14).map(m=>m.brands.name)
+
+  document.getElementById('app').innerHTML = `
+    <div class="kpi-grid">
+      ${[
+        { l:'Marcas analizadas',   v:allMetrics.length,         s:`${growing} con crecimiento positivo` },
+        { l:'Búsquedas Abr. YTD', v:fmtK(totalYTD),            s:'suma de todas las marcas' },
+        { l:'Líder en búsquedas', v:top?.brands?.name||'–',     s:`${fmtK(top?.apr_ytd_searches)} búsquedas` },
+        { l:'Mayor crecimiento',  v:fastest?.brands?.name||'–', s:`+${Math.round((fastest?.growth_12m_pct||0)*100)}% vs año anterior` },
+      ].map((c,i)=>`
+        <div class="kpi" style="animation-delay:${i*0.08}s">
+          <div class="kpi-l">${c.l}</div>
+          <div class="kpi-v">${c.v}</div>
+          <div class="kpi-s">${c.s}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="sec">Ranking por búsquedas · Abr. YTD</div>
+        <table>
+          <thead><tr><th>#</th><th>Marca</th><th>YTD</th><th>Crecim. 12m</th></tr></thead>
+          <tbody>
+            ${allMetrics.slice(0,14).map((m,i)=>`
+              <tr>
+                <td><span class="rn">${i+1}</span></td>
+                <td><span class="bn">${m.brands.name}</span></td>
+                <td class="mono" style="text-align:right">${fmtK(m.apr_ytd_searches)}</td>
+                <td style="text-align:right">
+                  <span class="badge ${m.growth_12m_pct>=0?'badge-up':'badge-dn'}">${fmtP(m.growth_12m_pct||0)}</span>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="sec">Crecimiento 12m vs 12m anteriores</div>
+        <div class="growth-wrap"><canvas id="gc"></canvas></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="sec">Evolución mensual de búsquedas</div>
+      <div class="pills" id="pills">
+        ${topBrands.map(n=>`<button class="pill" data-n="${n}" onclick="toggleBrand('${n}')">${n}</button>`).join('')}
+      </div>
+      <div class="chart-wrap"><canvas id="tc"></canvas></div>
+      <div class="legend" id="leg"></div>
+    </div>
+
+    <div class="footer">Datos en tiempo real · Supabase Edge Functions · Spain Auto Search Intelligence</div>
+  `
+
+  updatePills()
+  drawGrowth()
+  drawTrend()
+}
+
+function updatePills() {
+  document.querySelectorAll('.pill').forEach(p => {
+    const idx = selected.indexOf(p.dataset.n)
+    const isOn = idx !== -1
+    p.style.color       = isOn ? COLORS[idx%COLORS.length] : ''
+    p.style.borderColor = isOn ? COLORS[idx%COLORS.length] : ''
+    p.style.background  = isOn ? COLORS[idx%COLORS.length]+'18' : ''
+  })
+}
+
+window.toggleBrand = function(n) {
+  if (selected.includes(n)) {
+    if (selected.length===1) return
+    selected = selected.filter(x=>x!==n)
+  } else {
+    if (selected.length>=7) selected.shift()
+    selected.push(n)
+  }
+  updatePills()
+  drawTrend()
+}
+
+function drawGrowth() {
+  const top10 = allMetrics.slice(0,10)
+  const ctx = document.getElementById('gc').getContext('2d')
+  if (growthChart) growthChart.destroy()
+  growthChart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels: top10.map(m=>m.brands.name),
+      datasets:[{ data:top10.map(m=>Math.round((m.growth_12m_pct||0)*100)), backgroundColor:top10.map(m=>m.growth_12m_pct>=0?'rgba(62,207,142,.7)':'rgba(240,96,96,.7)'), borderRadius:3, barThickness:16 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1c1c17', borderColor:'rgba(255,255,255,.1)', borderWidth:1, titleColor:'#e8e4d8', bodyColor:'#8a8780', callbacks:{ label:c=>(c.raw>=0?'+':'')+c.raw+'%' } } },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{font:{family:'DM Mono',size:10}, color:'#5a5855', callback:v=>v+'%'}, border:{display:false} },
+        y:{ grid:{display:false}, ticks:{font:{family:'Syne',size:11}, color:'#8a8780'}, border:{display:false} }
+      }
+    }
+  })
+}
+
+function drawTrend() {
+  const labels = MONTHS.map(m=>{ const[y,mo]=m.split('-'); return mo+'/'+y.slice(2) })
+  const datasets = selected.map((brand,i)=>{
+    const rows = allMonthly.filter(x=>x.brands.name===brand).sort((a,b)=>a.month.localeCompare(b.month))
+    return {
+      label:brand,
+      data:MONTHS.map(mo=>{ const r=rows.find(x=>x.month.startsWith(mo)); return r?r.searches:null }),
+      borderColor:COLORS[i%COLORS.length], backgroundColor:'transparent',
+      borderWidth:1.5, pointRadius:0, pointHoverRadius:5,
+      pointHoverBackgroundColor:COLORS[i%COLORS.length],
+      tension:0.35, spanGaps:true
+    }
+  })
+  const ctx = document.getElementById('tc').getContext('2d')
+  if (trendChart) trendChart.destroy()
+  trendChart = new Chart(ctx, {
+    type:'line', data:{ labels, datasets },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1c1c17', borderColor:'rgba(255,255,255,.1)', borderWidth:1, titleColor:'#5a5855', titleFont:{family:'DM Mono',size:10}, bodyColor:'#e8e4d8', bodyFont:{family:'DM Mono',size:11}, callbacks:{ label:c=>` ${c.dataset.label}: ${fmtK(c.raw||0)}` } } },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{font:{family:'DM Mono',size:10}, color:'#5a5855', maxRotation:45, autoSkip:false}, border:{display:false} },
+        y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{font:{family:'DM Mono',size:10}, color:'#5a5855', callback:v=>fmtK(v)}, border:{display:false} }
+      }
+    }
+  })
+  document.getElementById('leg').innerHTML = datasets.map(d=>`<div class="li"><div class="ld" style="background:${d.borderColor}"></div>${d.label}</div>`).join('')
+}
+
+init()
+</script>
+</body>
 </html>
